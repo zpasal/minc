@@ -1,12 +1,13 @@
-# DaCompiler
+# MinC - Minimal Compiler
 
-Source
--> Lexer
--> Parser
--> Static Checker
--> Intermediate Code Generation
--> Optimisation
--> Code Generation
+Very basic language built for testing optimisations algorithms described in `Building Optimizing Compiler - Robert Morgan`
+
+
+# Overview
+
+Multi pass compiler:
+
+<img src="https://raw.githubusercontent.com/zpasal/minc/master/assets/passes.png?sanitize=true&raw=true" />
 
 
 ## ANTLR4 -> AST
