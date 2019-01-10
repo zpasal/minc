@@ -10,7 +10,7 @@ Very basic language built for testing optimisations algorithms described in `Bui
 
 Multi pass compiler (no compilation speed optimizations). Using ANTL4 for quick building Lexer and Parser.
 
-## Syntax
+## Example MinC code
 
 ```
 func max(a:real, b:real) : real {
@@ -30,11 +30,12 @@ var i : int;
 }
 ```
 
-Check src/main/antlr/MinC.g4 for full grammar description.
 
 ## ANTLR Parse Tree
 
-Lexer and Parser are generated with antlr (gradle plugin). Generated files can be found in ba.compiler.minc.parser package. When ANTLR parser runs it will generate Parse Tree e.g. for simple program implementing function max, parse tree looks like: 
+Lexer and Parser are generated with antlr (using gradle plugin). Code is generated from grammar decribed in `src/main/antlr/MinC.g4` Generated files can be found in ba.compiler.minc.parser package. 
+
+When ANTLR parser runs it will generate Parse Tree. For example, for simple program implementing function max, parse tree looks like: 
 
 <img src="https://raw.githubusercontent.com/zpasal/minc/master/assets/parseTree.png?sanitize=true&raw=true" />
 
@@ -48,7 +49,7 @@ Code for defining and translating Parse Tree to AST can be found in ba.compiler.
 
 ## Ident table and types
 
-Second pass of comipler will collect all identifier (variable declarations) and store them in Identifier Table, keeping track on different scopes - see ba.compiler.minc.idents.
+Second pass of compiler will collect all identifier (variable declarations) and store them in Identifier Table, keeping track on different scopes - see ba.compiler.minc.idents.
 
 ## Intermediate Code Generation
 
