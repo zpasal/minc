@@ -39,6 +39,13 @@ Lexer and Parser are generated with antlr (gradle plugin). When aNtlR parser run
 <img src="https://raw.githubusercontent.com/zpasal/minc/master/assets/parseTree.png?sanitize=true&raw=true" />
 
 
+## Abstrct Syntax tree
+
+Nest step is to translate Parse Tree to AST ... whihc cleanses unneccessery parse declarations that are not needed for furhter code processing e.g.:
+
+<img src="https://raw.githubusercontent.com/zpasal/minc/master/assets/parsetreeast.png?sanitize=true&raw=true" />
+
+
 ## Intermediate Code - Instruction Set
 
 * COPY      x = y
