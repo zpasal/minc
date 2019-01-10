@@ -1,6 +1,6 @@
 # MinC - Minimal Compiler
 
-Very basic language built for testing optimisations algorithms described in `Building Optimizing Compiler - Robert Morgan`
+Very basic language built for testing optimisations algorithms described in `Building Optimizing Compiler by Robert Morgan`
 
 
 # Overview
@@ -34,31 +34,62 @@ Check src/main/antlr/MinC.g4 for full grammar description.
 
 ## ANTLR Parse Tree
 
-Lexer and Parser are generated with antlr (gradle plugin). When aNtlR parser runs it will generate Parse Tree e.g. for simple program implementing function max, parse tree looks like: 
+Lexer and Parser are generated with antlr (gradle plugin). Generated files can be found in ba.compiler.minc.parser package. When ANTLR parser runs it will generate Parse Tree e.g. for simple program implementing function max, parse tree looks like: 
 
 <img src="https://raw.githubusercontent.com/zpasal/minc/master/assets/parseTree.png?sanitize=true&raw=true" />
 
-
 ## Abstrct Syntax tree
 
-Nest step is to translate Parse Tree to AST ... whihc cleanses unneccessery parse declarations that are not needed for furhter code processing e.g.:
+Nest step is to translate Parse Tree to AST ... cleaning unneccessery parse declarations that are not needed for furhter code processing e.g.:
 
 <img src="https://raw.githubusercontent.com/zpasal/minc/master/assets/parsetreeast.png?sanitize=true&raw=true" />
 
+Code for defining and translating Parse Tree to AST can be found in ba.compiler.minc.ast package.
 
-## Intermediate Code - Instruction Set
+## Ident table and types
 
-* COPY      x = y
-* BINARY    x = y op z
-* UNARY     x = op y
-* JUMP      goto L
-* COND      if x goto L  |  ifFalse x goto L
-* COND      if x relop y goto L
-* PROCp     param x1
-            param xn
-            call p, n
-* COPYi     x = y[i]
-* ADDRESS   x = &y
+Second pass of comipler will collect all identifier (variable declarations) and store them in Identifier Table, keeping track on different scopes - see ba.compiler.minc.idents.
+
+## Intermediate Code Generation
+
+Next pass is to build Intermediate Code (ba.compiler.minc.intercode). ICG is based on "Dragon Book" - `Compilers: Principles, Techniques, and Tools" by Alfred V. Aho, Monica S. Lam, Ravi Sethi, and Jeffrey D. Ullman`. 
+
+Basic set of abstract instructions:
+
+```
+;; res = arg1 OP arg2
+ADD arg1, arg2, res
+SUB arg1, arg2, res
+MUL arg1, arg2, res
+DIV arg1, arg2, res
+MOD arg1, arg2, res
+
+;; res = OP arg1
+NEG arg1, res
+CAST arg1, res
+
+;; Assignment
+CPY arg1, res
+IDXCPY arg1, arg2, res   ; res = arg1[arg2]
+IDXASG arg1, arg2, res  ; res[arg1] = arg2
+
+;; Flow
+JUMP L
+IFT arg1, L
+IFF arg1, L
+IFGT arg1, arg2, L
+IFGTE arg1, arg2, L
+IFLT arg1, arg2, L
+IFLTE arg1, arg2, L
+IFEQ  arg1, arg2, L
+IFNEQU arg1, arg, L
+
+;; Function call
+PARAM arg1
+CALL P, N
+```
+## Optimisations
+Comming soon
 
 
 
