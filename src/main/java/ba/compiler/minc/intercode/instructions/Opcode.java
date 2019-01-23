@@ -33,6 +33,7 @@ public enum Opcode {
     CALL,    // CALL L, n
     CASTi,   // CASTi arg1, res
     CASTc,   // CASTc arg1, res
-    CASTr,   // CASTr arg1, res
+    CASTr,   // CASTr arg1, res,
+    EXIT,    // EXIT arg1   ; exit of function
 
 }

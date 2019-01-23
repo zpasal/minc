@@ -14,9 +14,6 @@ import ba.compiler.minc.idents.Types;
 import ba.compiler.minc.intercode.instructions.*;
 import ba.compiler.minc.parser.MinCLexer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 // TODO - index assignment
 public class IntermediateCodeGenerator extends AstVisitor {
@@ -36,6 +33,8 @@ public class IntermediateCodeGenerator extends AstVisitor {
 
         super.visit(node);
 
+        // todo = return value
+        ic.gen(Opcode.EXIT, null, null, null);
         currentEnv = saved;
     }
 
