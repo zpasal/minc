@@ -1,5 +1,7 @@
 package ba.compiler.minc.intercode.instructions;
 
+import java.util.ArrayList;
+
 public class QuadCode {
 
     public Opcode operand;

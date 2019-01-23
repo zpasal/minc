@@ -7,10 +7,7 @@ import ba.compiler.minc.ast.nodes.declarations.Declaration;
 import ba.compiler.minc.ast.nodes.declarations.FuncDeclaration;
 import ba.compiler.minc.ast.nodes.declarations.VarDeclaration;
 import ba.compiler.minc.ast.nodes.expressions.*;
-import ba.compiler.minc.ast.nodes.statements.AssignmentStatement;
-import ba.compiler.minc.ast.nodes.statements.IfStatement;
-import ba.compiler.minc.ast.nodes.statements.ReturnStatement;
-import ba.compiler.minc.ast.nodes.statements.Statement;
+import ba.compiler.minc.ast.nodes.statements.*;
 
 public class AstVisitor {
 
@@ -50,9 +47,17 @@ public class AstVisitor {
         else if (node instanceof IfStatement) {
             visit((IfStatement)node);
         }
+        else if (node instanceof WhileStatement) {
+            visit((WhileStatement)node);
+        }
     }
 
     public void visit(IfStatement node) {
+        visit(node.getExpression());
+        visit(node.getBlock());
+    }
+
+    public void visit(WhileStatement node) {
         visit(node.getExpression());
         visit(node.getBlock());
     }

@@ -8,6 +8,7 @@ import ba.compiler.minc.ast.nodes.declarations.VarDeclaration;
 import ba.compiler.minc.ast.nodes.expressions.*;
 import ba.compiler.minc.ast.nodes.statements.AssignmentStatement;
 import ba.compiler.minc.ast.nodes.statements.IfStatement;
+import ba.compiler.minc.ast.nodes.statements.WhileStatement;
 import ba.compiler.minc.idents.Env;
 import ba.compiler.minc.idents.Types;
 import ba.compiler.minc.intercode.instructions.*;
@@ -15,6 +16,7 @@ import ba.compiler.minc.parser.MinCLexer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 // TODO - index assignment
 public class IntermediateCodeGenerator extends AstVisitor {
@@ -68,6 +70,12 @@ public class IntermediateCodeGenerator extends AstVisitor {
                 node.setWidth(node.getExpression().getWidth());
                 break;
             case MinCLexer.Not:
+                arg1 = node.getExpression().getAddress();
+                res = ic.newTemp();
+                node.setAddress(res);
+                ic.gen(Opcode.NOT, arg1, null, res);
+                node.setType(MinCLexer.BoolType);
+                node.setWidth(1);
                 break;
             default:
                 throw new RuntimeException("Unsupported operator: " + node.getOperator());
@@ -87,7 +95,6 @@ public class IntermediateCodeGenerator extends AstVisitor {
             throw new RuntimeException("Unsupported binary operator : " + op);
         }
     }
-
 
     private void visitBinaryRel(BinaryExpression node) {
         visit(node.getLeft());
@@ -186,6 +193,28 @@ public class IntermediateCodeGenerator extends AstVisitor {
         ic.getInstructions().get(instToPatch).setResult(falseLabel);
     }
 
+    @Override
+    public void visit(WhileStatement node) {
+
+        int instEntryPoint = ic.getNextInstruction();
+
+        visit(node.getExpression());
+
+        ArgLabel trueLabel = new ArgLabel(ic.getNextInstruction()+1);
+        ic.gen(Opcode.COND, node.getExpression().getAddress(), trueLabel, null);
+        int instToPatch = ic.getNextInstruction() - 1;
+
+        visit(node.getBlock());
+
+        // jumo back to while loop
+        ic.gen(Opcode.JUMP, new ArgLabel(instEntryPoint), null, null);
+
+        // Back-patch false label
+        int label = ic.getNextInstruction();
+        ArgLabel falseLabel = new ArgLabel(label);
+        ic.getInstructions().get(instToPatch).setResult(falseLabel);
+
+    }
 
     @Override
     public void visit(IdentifierExpression node) {

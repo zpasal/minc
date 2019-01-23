@@ -2,13 +2,15 @@ package ba.compiler.minc.ast.nodes.statements;
 
 import ba.compiler.minc.ast.nodes.Block;
 import ba.compiler.minc.ast.nodes.expressions.Expression;
-import ba.compiler.minc.intercode.instructions.ArgLabel;
 
-public class IfStatement extends Statement {
+import java.util.ArrayList;
+import java.util.List;
+
+public class WhileStatement extends Statement {
     private Expression expression;
     private Block block;
 
-    public IfStatement(int line, Expression expression, Block block) {
+    public WhileStatement(int line, Expression expression, Block block) {
         super(line);
         this.expression = expression;
         this.block = block;
@@ -30,15 +32,17 @@ public class IfStatement extends Statement {
         this.block = block;
     }
 
+
     public static final class Builder {
         private int line;
         private Expression expression;
+        private List<Integer> nextList = new ArrayList<>();
         private Block block;
 
         private Builder() {
         }
 
-        public static Builder anIfStatement() {
+        public static Builder aWhileStatement() {
             return new Builder();
         }
 
@@ -52,14 +56,20 @@ public class IfStatement extends Statement {
             return this;
         }
 
+        public Builder withNextList(List<Integer> nextList) {
+            this.nextList = nextList;
+            return this;
+        }
+
         public Builder withBlock(Block block) {
             this.block = block;
             return this;
         }
 
-        public IfStatement build() {
-            IfStatement ifStatement = new IfStatement(line, expression, block);
-            return ifStatement;
+        public WhileStatement build() {
+            WhileStatement whileStatement = new WhileStatement(line, expression, block);
+            whileStatement.setNextList(nextList);
+            return whileStatement;
         }
     }
 }

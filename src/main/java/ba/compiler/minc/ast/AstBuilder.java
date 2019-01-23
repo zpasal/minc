@@ -128,6 +128,7 @@ public class AstBuilder {
             ReturnStatementVisitor returnStatementVisitor = new ReturnStatementVisitor();
             VarDeclarationVisitor varDeclarationVisitor = new VarDeclarationVisitor();
             IfStatementVisitor ifStatementVisitor = new IfStatementVisitor();
+            WhileStatementVisitor whileStatementVisitor = new WhileStatementVisitor();
 
             List<Declaration> declarations = ctx.varDeclaration().stream()
                     .map(var -> var.accept(varDeclarationVisitor))
@@ -142,6 +143,9 @@ public class AstBuilder {
                         }
                         else if (statement.ifStatement() != null) {
                             return statement.accept(ifStatementVisitor);
+                        }
+                        else if (statement.whileStatement() != null) {
+                            return statement.accept(whileStatementVisitor);
                         }
                         return null;
                     })
@@ -161,6 +165,7 @@ public class AstBuilder {
             AssignmentStatementVisitor assignmentStatementVisitor = new AssignmentStatementVisitor();
             ReturnStatementVisitor returnStatementVisitor = new ReturnStatementVisitor();
             IfStatementVisitor ifStatementVisitor = new IfStatementVisitor();
+            WhileStatementVisitor whileStatementVisitor = new WhileStatementVisitor();
 
             List<Statement> statements = ctx.statement().stream()
                     .map(statement -> {
@@ -172,6 +177,9 @@ public class AstBuilder {
                         }
                         else if (statement.ifStatement() != null) {
                             return statement.accept(ifStatementVisitor);
+                        }
+                        else if (statement.whileStatement() != null) {
+                            return statement.accept(whileStatementVisitor);
                         }
                         return null;
                     })
@@ -231,6 +239,25 @@ public class AstBuilder {
                     .build();
         }
     }
+
+
+    private static class WhileStatementVisitor extends MinCBaseVisitor<WhileStatement> {
+        @Override
+        public WhileStatement visitWhileStatement(MinCParser.WhileStatementContext ctx) {
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            BlockVisitor blockVisitor = new BlockVisitor();
+
+            Expression expression = ctx.expression().accept(expressionVisitor);
+            Block block = ctx.block().accept(blockVisitor);
+
+            return WhileStatement.Builder.aWhileStatement()
+                    .withLine(ctx.start.getLine())
+                    .withExpression(expression)
+                    .withBlock(block)
+                    .build();
+        }
+    }
+
 
     private static class LValueStatementVisitor extends MinCBaseVisitor<LValue> {
         @Override
