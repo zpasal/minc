@@ -35,9 +35,6 @@ public class IfStatement extends Statement {
         private int line;
         private Expression expression;
         private Block block;
-        //synths
-        private ArgLabel trueLabel;
-        private ArgLabel falseLabel;
 
         private Builder() {
         }
@@ -58,16 +55,6 @@ public class IfStatement extends Statement {
 
         public Builder withBlock(Block block) {
             this.block = block;
-            return this;
-        }
-
-        public Builder withTrueLabel(ArgLabel trueLabel) {
-            this.trueLabel = trueLabel;
-            return this;
-        }
-
-        public Builder withFalseLabel(ArgLabel falseLabel) {
-            this.falseLabel = falseLabel;
             return this;
         }
 

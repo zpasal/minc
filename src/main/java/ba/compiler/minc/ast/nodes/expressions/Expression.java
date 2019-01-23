@@ -2,6 +2,7 @@ package ba.compiler.minc.ast.nodes.expressions;
 
 import ba.compiler.minc.ast.nodes.AstNode;
 import ba.compiler.minc.intercode.instructions.Arg;
+import ba.compiler.minc.intercode.instructions.ArgLabel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +12,6 @@ public abstract class Expression extends AstNode {
     private Arg address;
     private int type;
     private int width;
-    private List<Integer> trueList = new ArrayList<>();
-    private List<Integer> falseList = new ArrayList<>();
 
     public Expression(int line) {
         super(line);
@@ -42,19 +41,4 @@ public abstract class Expression extends AstNode {
         this.width = width;
     }
 
-    public List<Integer> getTrueList() {
-        return trueList;
-    }
-
-    public void setTrueList(List<Integer> trueList) {
-        this.trueList = trueList;
-    }
-
-    public List<Integer> getFalseList() {
-        return falseList;
-    }
-
-    public void setFalseList(List<Integer> falseList) {
-        this.falseList = falseList;
-    }
 }

@@ -60,9 +60,12 @@ public class IntermediateCodeGenerator extends AstVisitor {
         switch(node.getOperator()) {
             case MinCLexer.Minus:
                 Arg arg1 = node.getExpression().getAddress();
-                ArgTemp result = ic.newTemp();
-                node.setAddress(result);
-                ic.gen(Opcode.NEG, arg1, null, result);
+                ArgTemp res = ic.newTemp();
+                node.setAddress(res);
+                ic.gen(Opcode.NEG, arg1, null, res);
+
+                node.setType(node.getExpression().getType());
+                node.setWidth(node.getExpression().getWidth());
                 break;
             case MinCLexer.Not:
                 break;
@@ -80,74 +83,51 @@ public class IntermediateCodeGenerator extends AstVisitor {
         else if (isRelOperator(op)) {
             visitBinaryRel(node);
         }
-        else if (isLogicOperator(op)) {
-            visitBinaryLogic(node);
-        }
         else {
             throw new RuntimeException("Unsupported binary operator : " + op);
         }
     }
 
-    private void visitBinaryLogic(BinaryExpression node) {
-        visit(node.getLeft());
-        int labelToRight = ic.getNextInstruction();
-        visit(node.getRight());
-
-        node.setType(MinCLexer.BoolType);
-        node.setWidth(1);
-
-        int op = node.getOperator();
-        switch (op) {
-            case MinCLexer.And:
-                break;
-            case MinCLexer.Or:
-                break;
-            default:
-                throw new RuntimeException("Unsupported binary logic operator : " + op);
-        }
-
-    }
 
     private void visitBinaryRel(BinaryExpression node) {
         visit(node.getLeft());
         visit(node.getRight());
 
         int op = node.getOperator();
-
+        ArgTemp res = ic.newTemp();
+        node.setAddress(res);
         node.setType(MinCLexer.BoolType);
         node.setWidth(1);
 
         switch (op) {
             case MinCLexer.Gt:
-                ic.gen(Opcode.IFGT, node.getLeft().getAddress(), node.getRight().getAddress(), null);
-                ic.gen(Opcode.JUMP, null, null, null);
+                ic.gen(Opcode.ISGT, node.getLeft().getAddress(), node.getRight().getAddress(), res);
                 break;
             case MinCLexer.GtE:
-                ic.gen(Opcode.IFGTE, node.getLeft().getAddress(), node.getRight().getAddress(), null);
-                ic.gen(Opcode.JUMP, null, null, null);
+                ic.gen(Opcode.ISGTE, node.getLeft().getAddress(), node.getRight().getAddress(), res);
                 break;
             case MinCLexer.Lt:
-                ic.gen(Opcode.IFLT, node.getLeft().getAddress(), node.getRight().getAddress(), null);
-                ic.gen(Opcode.JUMP, null, null, null);
+                ic.gen(Opcode.ISLT, node.getLeft().getAddress(), node.getRight().getAddress(), res);
                 break;
             case MinCLexer.LtE:
-                ic.gen(Opcode.IFLTE, node.getLeft().getAddress(), node.getRight().getAddress(), null);
-                ic.gen(Opcode.JUMP, null, null, null);
+                ic.gen(Opcode.ISLTE, node.getLeft().getAddress(), node.getRight().getAddress(), res);
                 break;
             case MinCLexer.Equ:
-                ic.gen(Opcode.IFEQ, node.getLeft().getAddress(), node.getRight().getAddress(), null);
-                ic.gen(Opcode.JUMP, null, null, null);
+                ic.gen(Opcode.ISEQ, node.getLeft().getAddress(), node.getRight().getAddress(), res);
                 break;
             case MinCLexer.Nequ:
-                ic.gen(Opcode.IFNEQU, node.getLeft().getAddress(), node.getRight().getAddress(), null);
-                ic.gen(Opcode.JUMP, null, null, null);
+                ic.gen(Opcode.ISNEQU, node.getLeft().getAddress(), node.getRight().getAddress(), res);
+                break;
+            case MinCLexer.Or:
+                ic.gen(Opcode.LOR, node.getLeft().getAddress(), node.getRight().getAddress(), res);
+                break;
+            case MinCLexer.And:
+                ic.gen(Opcode.LAND, node.getLeft().getAddress(), node.getRight().getAddress(), res);
                 break;
             default:
                 throw new RuntimeException("Unsupported binary rel operator : " + op);
         }
-
     }
-
 
     private void visitBinaryArithmetic(BinaryExpression node) {
         visit(node.getLeft());
@@ -188,22 +168,22 @@ public class IntermediateCodeGenerator extends AstVisitor {
     @Override
     public void visit(Block node) {
         super.visit(node);
-        node.setNextList(node.getStatements().get(node.getStatements().size()-1).getNextList());
     }
 
     @Override
     public void visit(IfStatement node) {
         visit(node.getExpression());
-        int mInst = ic.getNextInstruction();
+
+        ArgLabel trueLabel = new ArgLabel(ic.getNextInstruction()+1);
+        ic.gen(Opcode.COND, node.getExpression().getAddress(), trueLabel, null);
+        int instToPatch = ic.getNextInstruction() - 1;
+
         visit(node.getBlock());
 
-        backpatch(node.getExpression().getTrueList(), mInst);
-
-        node.setNextList(merge(
-                node.getExpression().getFalseList(),
-                node.getBlock().getNextList()
-                )
-        );
+        // Back-patch false label
+        int label = ic.getNextInstruction();
+        ArgLabel falseLabel = new ArgLabel(label);
+        ic.getInstructions().get(instToPatch).setResult(falseLabel);
     }
 
 
@@ -213,30 +193,41 @@ public class IntermediateCodeGenerator extends AstVisitor {
         if (varDeclaration == null) {
             throw new RuntimeException("Undefined var " + node.getName());
         }
-        node.setAddress(new ArgIdentifier(node.getName()));
+
+        ArgTemp res = ic.newTemp();
+        ic.gen(Opcode.LOAD, new ArgIdentifier(node.getName()), null, res);
+
+        node.setAddress(res);
         node.setType(varDeclaration.getType());
         node.setWidth(varDeclaration.getWidth());
     }
 
     @Override
     public void visit(IntegerExpression node) {
-        node.setAddress(new ArgInteger(node.getValue()));
+        ArgTemp res = ic.newTemp();
+        ic.gen(Opcode.LOAD, new ArgInteger(node.getValue()), null, res);
+
+        node.setAddress(res);
         node.setType(MinCLexer.IntType);
         node.setWidth(4);
     }
 
-
     @Override
     public void visit(RealExpression node) {
-        node.setAddress(new ArgReal(node.getValue()));
+        ArgTemp res = ic.newTemp();
+        ic.gen(Opcode.LOAD, new ArgReal(node.getValue()), null, res);
+
+        node.setAddress(res);
         node.setType(MinCLexer.RealType);
         node.setWidth(8);
     }
 
-
     @Override
     public void visit(BoolExpression node) {
-        node.setAddress(new ArgBoolean(node.getValue()));
+        ArgTemp res = ic.newTemp();
+        ic.gen(Opcode.LOAD, new ArgBoolean(node.getValue()), null, res);
+
+        node.setAddress(res);
         node.setType(MinCLexer.BoolType);
         node.setWidth(1);
     }
@@ -251,11 +242,9 @@ public class IntermediateCodeGenerator extends AstVisitor {
                 op == MinCLexer.Lt ||
                 op == MinCLexer.LtE ||
                 op == MinCLexer.Equ ||
-                op == MinCLexer.Nequ;
-    }
-
-    private boolean isLogicOperator(int op) {
-        return op == MinCLexer.Or || op == MinCLexer.And;
+                op == MinCLexer.Nequ ||
+                op == MinCLexer.Or ||
+                op == MinCLexer.And;
     }
 
     private boolean isArithmeticOperator(int op) {
@@ -264,18 +253,6 @@ public class IntermediateCodeGenerator extends AstVisitor {
                 op == MinCLexer.Mul ||
                 op == MinCLexer.Div ||
                 op == MinCLexer.Mod;
-    }
-
-    private void backpatch(List<Integer> list, int address) {
-        list.stream().forEach(x -> {
-            ic.getInstructions().get(x).setResult(new ArgLabel(address));
-        });
-    }
-
-    private List<Integer> merge(List<Integer> list1, List<Integer> list2) {
-        List<Integer> list = new ArrayList<>(list1);
-        list.addAll(list2);
-        return list;
     }
 
 }
