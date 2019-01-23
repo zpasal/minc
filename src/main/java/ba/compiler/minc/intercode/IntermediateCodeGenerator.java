@@ -1,15 +1,20 @@
 package ba.compiler.minc.intercode;
 
 import ba.compiler.minc.ast.AstVisitor;
+import ba.compiler.minc.ast.nodes.Block;
 import ba.compiler.minc.ast.nodes.CompilationUnit;
 import ba.compiler.minc.ast.nodes.declarations.FuncDeclaration;
 import ba.compiler.minc.ast.nodes.declarations.VarDeclaration;
 import ba.compiler.minc.ast.nodes.expressions.*;
 import ba.compiler.minc.ast.nodes.statements.AssignmentStatement;
+import ba.compiler.minc.ast.nodes.statements.IfStatement;
 import ba.compiler.minc.idents.Env;
 import ba.compiler.minc.idents.Types;
 import ba.compiler.minc.intercode.instructions.*;
 import ba.compiler.minc.parser.MinCLexer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO - index assignment
 public class IntermediateCodeGenerator extends AstVisitor {
@@ -52,28 +57,101 @@ public class IntermediateCodeGenerator extends AstVisitor {
     public void visit(UnaryExpression node) {
         super.visit(node.getExpression());
 
-        Arg arg1 = node.getExpression().getAddress();
-        ArgTemp result = ic.newTemp();
-
-        node.setAddress(result);
-
         switch(node.getOperator()) {
             case MinCLexer.Minus:
+                Arg arg1 = node.getExpression().getAddress();
+                ArgTemp result = ic.newTemp();
+                node.setAddress(result);
                 ic.gen(Opcode.NEG, arg1, null, result);
                 break;
             case MinCLexer.Not:
-                throw new RuntimeException("Unsupported unary not!");
+                break;
             default:
                 throw new RuntimeException("Unsupported operator: " + node.getOperator());
         }
     }
 
-
     @Override
     public void visit(BinaryExpression node) {
+        int op = node.getOperator();
+        if (isArithmeticOperator(op)) {
+            visitBinaryArithmetic(node);
+        }
+        else if (isRelOperator(op)) {
+            visitBinaryRel(node);
+        }
+        else if (isLogicOperator(op)) {
+            visitBinaryLogic(node);
+        }
+        else {
+            throw new RuntimeException("Unsupported binary operator : " + op);
+        }
+    }
+
+    private void visitBinaryLogic(BinaryExpression node) {
+        visit(node.getLeft());
+        int labelToRight = ic.getNextInstruction();
+        visit(node.getRight());
+
+        node.setType(MinCLexer.BoolType);
+        node.setWidth(1);
+
+        int op = node.getOperator();
+        switch (op) {
+            case MinCLexer.And:
+                break;
+            case MinCLexer.Or:
+                break;
+            default:
+                throw new RuntimeException("Unsupported binary logic operator : " + op);
+        }
+
+    }
+
+    private void visitBinaryRel(BinaryExpression node) {
         visit(node.getLeft());
         visit(node.getRight());
 
+        int op = node.getOperator();
+
+        node.setType(MinCLexer.BoolType);
+        node.setWidth(1);
+
+        switch (op) {
+            case MinCLexer.Gt:
+                ic.gen(Opcode.IFGT, node.getLeft().getAddress(), node.getRight().getAddress(), null);
+                ic.gen(Opcode.JUMP, null, null, null);
+                break;
+            case MinCLexer.GtE:
+                ic.gen(Opcode.IFGTE, node.getLeft().getAddress(), node.getRight().getAddress(), null);
+                ic.gen(Opcode.JUMP, null, null, null);
+                break;
+            case MinCLexer.Lt:
+                ic.gen(Opcode.IFLT, node.getLeft().getAddress(), node.getRight().getAddress(), null);
+                ic.gen(Opcode.JUMP, null, null, null);
+                break;
+            case MinCLexer.LtE:
+                ic.gen(Opcode.IFLTE, node.getLeft().getAddress(), node.getRight().getAddress(), null);
+                ic.gen(Opcode.JUMP, null, null, null);
+                break;
+            case MinCLexer.Equ:
+                ic.gen(Opcode.IFEQ, node.getLeft().getAddress(), node.getRight().getAddress(), null);
+                ic.gen(Opcode.JUMP, null, null, null);
+                break;
+            case MinCLexer.Nequ:
+                ic.gen(Opcode.IFNEQU, node.getLeft().getAddress(), node.getRight().getAddress(), null);
+                ic.gen(Opcode.JUMP, null, null, null);
+                break;
+            default:
+                throw new RuntimeException("Unsupported binary rel operator : " + op);
+        }
+
+    }
+
+
+    private void visitBinaryArithmetic(BinaryExpression node) {
+        visit(node.getLeft());
+        visit(node.getRight());
         node.setType(Types.max(
                 node.getLeft().getType(),
                 node.getRight().getType()
@@ -85,7 +163,8 @@ public class IntermediateCodeGenerator extends AstVisitor {
         ArgTemp result = ic.newTemp();
         node.setAddress(result);
 
-        switch(node.getOperator()) {
+        int op = node.getOperator();
+        switch (op) {
             case MinCLexer.Minus:
                 ic.gen(Opcode.SUB, arg1, arg2, result);
                 break;
@@ -101,7 +180,30 @@ public class IntermediateCodeGenerator extends AstVisitor {
             case MinCLexer.Mod:
                 ic.gen(Opcode.MOD, arg1, arg2, result);
                 break;
+            default:
+                throw new RuntimeException("Unsupported binary arithmetic operator : " + op);
         }
+    }
+
+    @Override
+    public void visit(Block node) {
+        super.visit(node);
+        node.setNextList(node.getStatements().get(node.getStatements().size()-1).getNextList());
+    }
+
+    @Override
+    public void visit(IfStatement node) {
+        visit(node.getExpression());
+        int mInst = ic.getNextInstruction();
+        visit(node.getBlock());
+
+        backpatch(node.getExpression().getTrueList(), mInst);
+
+        node.setNextList(merge(
+                node.getExpression().getFalseList(),
+                node.getBlock().getNextList()
+                )
+        );
     }
 
 
@@ -142,4 +244,38 @@ public class IntermediateCodeGenerator extends AstVisitor {
     public IntermediateCode getIc() {
         return ic;
     }
+
+    private boolean isRelOperator(int op) {
+        return op == MinCLexer.Gt ||
+                op == MinCLexer.GtE ||
+                op == MinCLexer.Lt ||
+                op == MinCLexer.LtE ||
+                op == MinCLexer.Equ ||
+                op == MinCLexer.Nequ;
+    }
+
+    private boolean isLogicOperator(int op) {
+        return op == MinCLexer.Or || op == MinCLexer.And;
+    }
+
+    private boolean isArithmeticOperator(int op) {
+        return op == MinCLexer.Minus ||
+                op == MinCLexer.Plus ||
+                op == MinCLexer.Mul ||
+                op == MinCLexer.Div ||
+                op == MinCLexer.Mod;
+    }
+
+    private void backpatch(List<Integer> list, int address) {
+        list.stream().forEach(x -> {
+            ic.getInstructions().get(x).setResult(new ArgLabel(address));
+        });
+    }
+
+    private List<Integer> merge(List<Integer> list1, List<Integer> list2) {
+        List<Integer> list = new ArrayList<>(list1);
+        list.addAll(list2);
+        return list;
+    }
+
 }

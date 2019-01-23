@@ -8,6 +8,7 @@ import java.util.List;
 public class Block extends AstNode {
     private List<Declaration> declarations;
     private List<Statement> statements;
+    private List<Integer> nextList;
 
     public Block(int line, List<Declaration> declarations, List<Statement> statements) {
         super(line);
@@ -31,12 +32,20 @@ public class Block extends AstNode {
         this.declarations = declarations;
     }
 
+    public List<Integer> getNextList() {
+        return nextList;
+    }
+
+    public void setNextList(List<Integer> nextList) {
+        this.nextList = nextList;
+    }
+
 
     public static final class Builder {
         private int line;
-        private int column;
         private List<Declaration> declarations;
         private List<Statement> statements;
+        private List<Integer> nextList;
 
         private Builder() {
         }
@@ -60,8 +69,15 @@ public class Block extends AstNode {
             return this;
         }
 
+        public Builder withNextList(List<Integer> nextList) {
+            this.nextList = nextList;
+            return this;
+        }
+
         public Block build() {
-            return new Block(line, declarations, statements);
+            Block block = new Block(line, declarations, statements);
+            block.setNextList(nextList);
+            return block;
         }
     }
 }

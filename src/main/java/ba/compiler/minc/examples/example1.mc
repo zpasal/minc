@@ -1,3 +1,3 @@
-func linear(i:int, c:char, r:real, b:bool) : int {
-    i = b + 1;
+func linear(c:bool) : int {
+    c = c || c;
 }

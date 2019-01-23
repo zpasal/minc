@@ -48,14 +48,14 @@ public class MinCBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements M
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDimensions(MinCParser.DimensionsContext ctx) { return visitChildren(ctx); }
+	@Override public T visitType(MinCParser.TypeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitType(MinCParser.TypeContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDimensions(MinCParser.DimensionsContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

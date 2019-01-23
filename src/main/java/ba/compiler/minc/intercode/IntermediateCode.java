@@ -1,10 +1,7 @@
 package ba.compiler.minc.intercode;
 
 import ba.compiler.minc.idents.Types;
-import ba.compiler.minc.intercode.instructions.Arg;
-import ba.compiler.minc.intercode.instructions.ArgTemp;
-import ba.compiler.minc.intercode.instructions.Opcode;
-import ba.compiler.minc.intercode.instructions.QuadCode;
+import ba.compiler.minc.intercode.instructions.*;
 import ba.compiler.minc.parser.MinCLexer;
 
 import java.util.ArrayList;
@@ -13,6 +10,7 @@ import java.util.List;
 public class IntermediateCode {
     private List<QuadCode> instructions = new ArrayList<>();
     private int tempIndex = 0;
+    private int labelIndex = 0;
 
     public QuadCode gen(Opcode op, Arg arg1, Arg arg2, Arg res) {
         QuadCode quadCode = new QuadCode(op, arg1, arg2, res);
@@ -29,10 +27,26 @@ public class IntermediateCode {
     }
 
 
+    public int getTempIndex() {
+        return tempIndex;
+    }
+
+    public List<QuadCode> getInstructions() {
+        return instructions;
+    }
+
+    public ArgLabel newLabel() {
+        return new ArgLabel(++labelIndex);
+    }
+
+    public int getNextInstruction() {
+        return instructions.size();
+    }
+
     /*
-    *  implicit conversation by widening: double -> float -> long -> int -> char
-    *
-    * */
+     *  implicit conversation by widening: double -> float -> long -> int -> char
+     *
+     * */
     public Arg widen(Arg arg, int typeT, int typeW) {
         if (typeT == typeW) {
             return arg;
@@ -65,17 +79,5 @@ public class IntermediateCode {
         else {
             throw new RuntimeException("No conversion to " + typeW);
         }
-    }
-
-    public void genLabel() {
-
-    }
-
-    public int getTempIndex() {
-        return tempIndex;
-    }
-
-    public List<QuadCode> getInstructions() {
-        return instructions;
     }
 }

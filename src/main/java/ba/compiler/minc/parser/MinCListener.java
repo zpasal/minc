@@ -51,16 +51,6 @@ public interface MinCListener extends ParseTreeListener {
 	 */
 	void exitVarInnerDeclaration(MinCParser.VarInnerDeclarationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MinCParser#dimensions}.
-	 * @param ctx the parse tree
-	 */
-	void enterDimensions(MinCParser.DimensionsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MinCParser#dimensions}.
-	 * @param ctx the parse tree
-	 */
-	void exitDimensions(MinCParser.DimensionsContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link MinCParser#type}.
 	 * @param ctx the parse tree
 	 */
@@ -70,6 +60,16 @@ public interface MinCListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitType(MinCParser.TypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MinCParser#dimensions}.
+	 * @param ctx the parse tree
+	 */
+	void enterDimensions(MinCParser.DimensionsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MinCParser#dimensions}.
+	 * @param ctx the parse tree
+	 */
+	void exitDimensions(MinCParser.DimensionsContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MinCParser#funcDeclaration}.
 	 * @param ctx the parse tree

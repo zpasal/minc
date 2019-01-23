@@ -67,18 +67,6 @@ public class MinCBaseListener implements MinCListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDimensions(MinCParser.DimensionsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDimensions(MinCParser.DimensionsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterType(MinCParser.TypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -86,6 +74,18 @@ public class MinCBaseListener implements MinCListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitType(MinCParser.TypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDimensions(MinCParser.DimensionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDimensions(MinCParser.DimensionsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

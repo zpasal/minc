@@ -1,6 +1,7 @@
 package ba.compiler.minc;
 
 import ba.compiler.minc.ast.AstBuilder;
+import ba.compiler.minc.ast.AstPrint;
 import ba.compiler.minc.ast.nodes.CompilationUnit;
 import ba.compiler.minc.idents.IdentTableVisitor;
 import ba.compiler.minc.intercode.IntermediateCodeGenerator;
@@ -19,6 +20,10 @@ public class MinC {
 
         IntermediateCodeGenerator intermediateCodeGenerator = new IntermediateCodeGenerator();
         intermediateCodeGenerator.visit(compilationUnit);
-        intermediateCodeGenerator.getIc().getInstructions().forEach(x -> System.out.println(x));
+        for (int i=0; i<intermediateCodeGenerator.getIc().getInstructions().size(); i++) {
+            String instString = String.format("%07d %s", i, intermediateCodeGenerator.getIc().getInstructions().get(i));
+            System.out.println(instString);
+        }
+
     }
 }

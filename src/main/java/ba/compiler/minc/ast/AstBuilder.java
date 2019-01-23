@@ -7,10 +7,7 @@ import ba.compiler.minc.ast.nodes.declarations.FuncDeclaration;
 import ba.compiler.minc.ast.nodes.declarations.Type;
 import ba.compiler.minc.ast.nodes.declarations.VarDeclaration;
 import ba.compiler.minc.ast.nodes.expressions.*;
-import ba.compiler.minc.ast.nodes.statements.AssignmentStatement;
-import ba.compiler.minc.ast.nodes.statements.LValue;
-import ba.compiler.minc.ast.nodes.statements.ReturnStatement;
-import ba.compiler.minc.ast.nodes.statements.Statement;
+import ba.compiler.minc.ast.nodes.statements.*;
 import ba.compiler.minc.parser.MinCBaseVisitor;
 import ba.compiler.minc.parser.MinCLexer;
 import ba.compiler.minc.parser.MinCParser;
@@ -130,6 +127,7 @@ public class AstBuilder {
             AssignmentStatementVisitor assignmentStatementVisitor = new AssignmentStatementVisitor();
             ReturnStatementVisitor returnStatementVisitor = new ReturnStatementVisitor();
             VarDeclarationVisitor varDeclarationVisitor = new VarDeclarationVisitor();
+            IfStatementVisitor ifStatementVisitor = new IfStatementVisitor();
 
             List<Declaration> declarations = ctx.varDeclaration().stream()
                     .map(var -> var.accept(varDeclarationVisitor))
@@ -142,6 +140,9 @@ public class AstBuilder {
                         else if (statement.returnStatement() != null) {
                             return statement.accept(returnStatementVisitor);
                         }
+                        else if (statement.ifStatement() != null) {
+                            return statement.accept(ifStatementVisitor);
+                        }
                         return null;
                     })
                     .collect(Collectors.toList());
@@ -153,6 +154,37 @@ public class AstBuilder {
                     .build();
         }
     }
+
+    private static class BlockVisitor extends MinCBaseVisitor<Block> {
+        @Override
+        public Block visitBlock(MinCParser.BlockContext ctx) {
+            AssignmentStatementVisitor assignmentStatementVisitor = new AssignmentStatementVisitor();
+            ReturnStatementVisitor returnStatementVisitor = new ReturnStatementVisitor();
+            IfStatementVisitor ifStatementVisitor = new IfStatementVisitor();
+
+            List<Statement> statements = ctx.statement().stream()
+                    .map(statement -> {
+                        if (statement.assignmentStatement() != null) {
+                            return statement.accept(assignmentStatementVisitor);
+                        }
+                        else if (statement.returnStatement() != null) {
+                            return statement.accept(returnStatementVisitor);
+                        }
+                        else if (statement.ifStatement() != null) {
+                            return statement.accept(ifStatementVisitor);
+                        }
+                        return null;
+                    })
+                    .collect(Collectors.toList());
+
+            return Block.Builder.aBlock()
+                    .withLine(ctx.start.getLine())
+                    .withStatements(statements)
+                    .withDeclarations(new ArrayList<>())
+                    .build();
+        }
+    }
+
 
     private static class ReturnStatementVisitor extends MinCBaseVisitor<ReturnStatement> {
         @Override
@@ -179,6 +211,23 @@ public class AstBuilder {
                     .withLine(ctx.start.getLine())
                     .withLValue(lValue)
                     .withExpression(expression)
+                    .build();
+        }
+    }
+
+    private static class IfStatementVisitor extends MinCBaseVisitor<IfStatement> {
+        @Override
+        public IfStatement visitIfStatement(MinCParser.IfStatementContext ctx) {
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            BlockVisitor blockVisitor = new BlockVisitor();
+
+            Expression expression = ctx.expression().accept(expressionVisitor);
+            Block block = ctx.block().accept(blockVisitor);
+
+            return IfStatement.Builder.anIfStatement()
+                    .withLine(ctx.start.getLine())
+                    .withExpression(expression)
+                    .withBlock(block)
                     .build();
         }
     }

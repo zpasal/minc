@@ -27,14 +27,14 @@ public class MinCParser extends Parser {
 		IntegerLiteral=37, RealLiteral=38, Whitespace=39, Newline=40;
 	public static final int
 		RULE_compilationUnit = 0, RULE_declarationItem = 1, RULE_varDeclaration = 2, 
-		RULE_varInnerDeclaration = 3, RULE_dimensions = 4, RULE_type = 5, RULE_funcDeclaration = 6, 
+		RULE_varInnerDeclaration = 3, RULE_type = 4, RULE_dimensions = 5, RULE_funcDeclaration = 6, 
 		RULE_paramDefinitions = 7, RULE_functionBlock = 8, RULE_block = 9, RULE_statement = 10, 
 		RULE_assignmentStatement = 11, RULE_lValue = 12, RULE_functionCallStatement = 13, 
 		RULE_ifStatement = 14, RULE_whileStatement = 15, RULE_returnStatement = 16, 
 		RULE_exprList = 17, RULE_expression = 18, RULE_functionCall = 19, RULE_indexes = 20;
 	public static final String[] ruleNames = {
 		"compilationUnit", "declarationItem", "varDeclaration", "varInnerDeclaration", 
-		"dimensions", "type", "funcDeclaration", "paramDefinitions", "functionBlock", 
+		"type", "dimensions", "funcDeclaration", "paramDefinitions", "functionBlock", 
 		"block", "statement", "assignmentStatement", "lValue", "functionCallStatement", 
 		"ifStatement", "whileStatement", "returnStatement", "exprList", "expression", 
 		"functionCall", "indexes"
@@ -327,68 +327,6 @@ public class MinCParser extends Parser {
 		return _localctx;
 	}
 
-	public static class DimensionsContext extends ParserRuleContext {
-		public List<TerminalNode> IntegerLiteral() { return getTokens(MinCParser.IntegerLiteral); }
-		public TerminalNode IntegerLiteral(int i) {
-			return getToken(MinCParser.IntegerLiteral, i);
-		}
-		public DimensionsContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_dimensions; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof MinCListener ) ((MinCListener)listener).enterDimensions(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof MinCListener ) ((MinCListener)listener).exitDimensions(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof MinCVisitor ) return ((MinCVisitor<? extends T>)visitor).visitDimensions(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-
-	public final DimensionsContext dimensions() throws RecognitionException {
-		DimensionsContext _localctx = new DimensionsContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_dimensions);
-		int _la;
-		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(65); 
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			do {
-				{
-				{
-				setState(62);
-				match(T__0);
-				setState(63);
-				match(IntegerLiteral);
-				setState(64);
-				match(T__1);
-				}
-				}
-				setState(67); 
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-			} while ( _la==T__0 );
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
 	public static class TypeContext extends ParserRuleContext {
 		public Token baseType;
 		public TerminalNode IntType() { return getToken(MinCParser.IntType, 0); }
@@ -420,12 +358,12 @@ public class MinCParser extends Parser {
 
 	public final TypeContext type() throws RecognitionException {
 		TypeContext _localctx = new TypeContext(_ctx, getState());
-		enterRule(_localctx, 10, RULE_type);
+		enterRule(_localctx, 8, RULE_type);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(69);
+			setState(62);
 			((TypeContext)_localctx).baseType = _input.LT(1);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << IntType) | (1L << BoolType) | (1L << CharType) | (1L << RealType) | (1L << VoidType))) != 0)) ) {
@@ -433,15 +371,77 @@ public class MinCParser extends Parser {
 			} else {
 				consume();
 			}
-			setState(71);
+			setState(64);
 			_la = _input.LA(1);
 			if (_la==T__0) {
 				{
-				setState(70);
+				setState(63);
 				dimensions();
 				}
 			}
 
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class DimensionsContext extends ParserRuleContext {
+		public List<TerminalNode> IntegerLiteral() { return getTokens(MinCParser.IntegerLiteral); }
+		public TerminalNode IntegerLiteral(int i) {
+			return getToken(MinCParser.IntegerLiteral, i);
+		}
+		public DimensionsContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_dimensions; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof MinCListener ) ((MinCListener)listener).enterDimensions(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof MinCListener ) ((MinCListener)listener).exitDimensions(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof MinCVisitor ) return ((MinCVisitor<? extends T>)visitor).visitDimensions(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final DimensionsContext dimensions() throws RecognitionException {
+		DimensionsContext _localctx = new DimensionsContext(_ctx, getState());
+		enterRule(_localctx, 10, RULE_dimensions);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(69); 
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			do {
+				{
+				{
+				setState(66);
+				match(T__0);
+				setState(67);
+				match(IntegerLiteral);
+				setState(68);
+				match(T__1);
+				}
+				}
+				setState(71); 
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			} while ( _la==T__0 );
 			}
 		}
 		catch (RecognitionException re) {
@@ -1970,8 +1970,8 @@ public class MinCParser extends Parser {
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\3\2\7\2.\n\2\f\2\16\2\61\13\2"+
-		"\3\2\3\2\3\3\3\3\5\3\67\n\3\3\4\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\6\3\6\3"+
-		"\6\6\6D\n\6\r\6\16\6E\3\7\3\7\5\7J\n\7\3\b\3\b\3\b\3\b\5\bP\n\b\3\b\3"+
+		"\3\2\3\2\3\3\3\3\5\3\67\n\3\3\4\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\6\3\6\5"+
+		"\6C\n\6\3\7\3\7\3\7\6\7H\n\7\r\7\16\7I\3\b\3\b\3\b\3\b\5\bP\n\b\3\b\3"+
 		"\b\3\b\3\b\3\b\3\t\3\t\3\t\7\tZ\n\t\f\t\16\t]\13\t\3\n\3\n\7\na\n\n\f"+
 		"\n\16\nd\13\n\3\n\7\ng\n\n\f\n\16\nj\13\n\3\n\3\n\3\13\3\13\7\13p\n\13"+
 		"\f\13\16\13s\13\13\3\13\3\13\3\f\3\f\3\f\3\f\3\f\5\f|\n\f\3\r\3\r\3\r"+
@@ -1985,17 +1985,17 @@ public class MinCParser extends Parser {
 		"\25\u00d7\n\25\3\25\3\25\3\26\3\26\3\26\3\26\6\26\u00df\n\26\r\26\16\26"+
 		"\u00e0\3\26\2\3&\27\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*\2\7"+
 		"\3\2\n\16\3\2\27\31\3\2\32\33\3\2\34\37\3\2 !\u00ee\2/\3\2\2\2\4\66\3"+
-		"\2\2\2\68\3\2\2\2\b<\3\2\2\2\nC\3\2\2\2\fG\3\2\2\2\16K\3\2\2\2\20V\3\2"+
+		"\2\2\2\68\3\2\2\2\b<\3\2\2\2\n@\3\2\2\2\fG\3\2\2\2\16K\3\2\2\2\20V\3\2"+
 		"\2\2\22^\3\2\2\2\24m\3\2\2\2\26{\3\2\2\2\30}\3\2\2\2\32\u0082\3\2\2\2"+
 		"\34\u0086\3\2\2\2\36\u008e\3\2\2\2 \u0094\3\2\2\2\"\u009a\3\2\2\2$\u009e"+
 		"\3\2\2\2&\u00ba\3\2\2\2(\u00d3\3\2\2\2*\u00de\3\2\2\2,.\5\4\3\2-,\3\2"+
 		"\2\2.\61\3\2\2\2/-\3\2\2\2/\60\3\2\2\2\60\62\3\2\2\2\61/\3\2\2\2\62\63"+
 		"\7\2\2\3\63\3\3\2\2\2\64\67\5\6\4\2\65\67\5\16\b\2\66\64\3\2\2\2\66\65"+
 		"\3\2\2\2\67\5\3\2\2\289\7\5\2\29:\5\b\5\2:;\7\20\2\2;\7\3\2\2\2<=\7%\2"+
-		"\2=>\7\17\2\2>?\5\f\7\2?\t\3\2\2\2@A\7\3\2\2AB\7\'\2\2BD\7\4\2\2C@\3\2"+
-		"\2\2DE\3\2\2\2EC\3\2\2\2EF\3\2\2\2F\13\3\2\2\2GI\t\2\2\2HJ\5\n\6\2IH\3"+
+		"\2=>\7\17\2\2>?\5\n\6\2?\t\3\2\2\2@B\t\2\2\2AC\5\f\7\2BA\3\2\2\2BC\3\2"+
+		"\2\2C\13\3\2\2\2DE\7\3\2\2EF\7\'\2\2FH\7\4\2\2GD\3\2\2\2HI\3\2\2\2IG\3"+
 		"\2\2\2IJ\3\2\2\2J\r\3\2\2\2KL\7\6\2\2LM\7%\2\2MO\7\22\2\2NP\5\20\t\2O"+
-		"N\3\2\2\2OP\3\2\2\2PQ\3\2\2\2QR\7\23\2\2RS\7\17\2\2ST\5\f\7\2TU\5\22\n"+
+		"N\3\2\2\2OP\3\2\2\2PQ\3\2\2\2QR\7\23\2\2RS\7\17\2\2ST\5\n\6\2TU\5\22\n"+
 		"\2U\17\3\2\2\2V[\5\b\5\2WX\7\21\2\2XZ\5\b\5\2YW\3\2\2\2Z]\3\2\2\2[Y\3"+
 		"\2\2\2[\\\3\2\2\2\\\21\3\2\2\2][\3\2\2\2^b\7\24\2\2_a\5\6\4\2`_\3\2\2"+
 		"\2ad\3\2\2\2b`\3\2\2\2bc\3\2\2\2ch\3\2\2\2db\3\2\2\2eg\5\26\f\2fe\3\2"+
@@ -2037,7 +2037,7 @@ public class MinCParser extends Parser {
 		"\3\2\2\2\u00d8\u00d9\7\23\2\2\u00d9)\3\2\2\2\u00da\u00db\7\3\2\2\u00db"+
 		"\u00dc\5&\24\2\u00dc\u00dd\7\4\2\2\u00dd\u00df\3\2\2\2\u00de\u00da\3\2"+
 		"\2\2\u00df\u00e0\3\2\2\2\u00e0\u00de\3\2\2\2\u00e0\u00e1\3\2\2\2\u00e1"+
-		"+\3\2\2\2\26/\66EIO[bhq{\u0084\u0089\u00a3\u00b0\u00b4\u00ba\u00ce\u00d0"+
+		"+\3\2\2\2\26/\66BIO[bhq{\u0084\u0089\u00a3\u00b0\u00b4\u00ba\u00ce\u00d0"+
 		"\u00d6\u00e0";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());

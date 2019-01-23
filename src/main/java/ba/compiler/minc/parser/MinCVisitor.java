@@ -38,17 +38,17 @@ public interface MinCVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVarInnerDeclaration(MinCParser.VarInnerDeclarationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MinCParser#dimensions}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDimensions(MinCParser.DimensionsContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link MinCParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitType(MinCParser.TypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MinCParser#dimensions}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDimensions(MinCParser.DimensionsContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MinCParser#funcDeclaration}.
 	 * @param ctx the parse tree
