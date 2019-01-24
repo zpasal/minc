@@ -59,28 +59,29 @@ Second pass of compiler will collect all identifier (variable declarations) and 
 
 ## Intermediate Code Generation
 
-Next pass is to build Intermediate Code (ba.compiler.minc.intercode). ICG is based on "Dragon Book" - `Compilers: Principles, Techniques, and Tools" by Alfred V. Aho, Monica S. Lam, Ravi Sethi, and Jeffrey D. Ullman`. 
+Next pass is to build Intermediate Code (ba.compiler.minc.intercode). IR form is lowered to look like targeted machine
+form but keeping some higher level instructions (like indexing).
 
 Basic set of abstract instructions:
 
 ```
-    LOAD, // LOAD arg1, null, res ; res = arg1
-    ADD,  // ADD arg1, arg2, res  ; res = arg1 OP arg2
+    LOAD, // LOAD arg1, null, res           ; res = arg1
+    ADD,  // ADD arg1, arg2, res            ; res = arg1 OP arg2
     SUB,  // SUB arg1, arg2, res
     MUL,  // MUL arg1, arg2, res
     DIV,  // DIV arg1, arg2, res
     MOD,  // MOD arg1, arg2, res
-    LAND, // AND arg1, arg2, res -- logical
-    LOR,  // AND arg1, arg2, res -- logical
+    LAND, // AND arg1, arg2, res            ; logical and
+    LOR,  // AND arg1, arg2, res            ; logical or
 
-    NEG,  // NEG arg1, res        ; res = OP arg1
+    NEG,  // NEG arg1, res                  ; res = OP arg1
     NOT,  // NOT arg1, res
 
-    CPY,     // CPY arg1, res  ; res = arg1
-    IDXCPY,  // IDXCPY arg1, arg2, res ; res = arg1[arg2]
-    IDXASG,  // IDXASG arg1, arg2, res ; arg1[arg2] = res
+    CPY,     // CPY arg1, res               ; res = arg1
+    IDXCPY,  // IDXCPY arg1, arg2, res      ; res = arg1[arg2]
+    IDXASG,  // IDXASG arg1, arg2, res      ; arg1[arg2] = res
 
-    ISGT,    // IFGT arg1, arg2, R  ; r = arg1 > arg2
+    ISGT,    // IFGT arg1, arg2, R          ; r = arg1 > arg2
     ISGTE,
     ISLT,
     ISLTE,
@@ -88,16 +89,16 @@ Basic set of abstract instructions:
     ISNEQU,
 
     JUMP,    // JUMP L
-    COND,    // COND arg1, L1, L2  ; if true jump L1 else jump L2
-    IFT,     // IFT arg1, L   ; if arg1 jump L
-    IFF,     // IFF arg1, L   ; if !arg1 jump L
+    COND,    // COND arg1, L1, L2           ; if true jump L1 else jump L2
+    IFT,     // IFT arg1, L                 ; if arg1 jump L
+    IFF,     // IFF arg1, L                 ; if !arg1 jump L
 
     PARAM,   // PARAM x
     CALL,    // CALL L, n
-    CASTi,   // CASTi arg1, res
-    CASTc,   // CASTc arg1, res
-    CASTr,   // CASTr arg1, res,
-    EXIT,    // EXIT arg1   ; exit of function
+    CASTi,   // CASTi arg1, res             ; res = (int)arg1
+    CASTc,   // CASTc arg1, res             ; res = (char)arg1
+    CASTr,   // CASTr arg1, res             ; res = (real)arg1
+    EXIT,    // EXIT arg1                   ; exit of function
 ```
 
 Generated code (without any optimisations) for largestColumn function looks like:
