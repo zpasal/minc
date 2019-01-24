@@ -15,7 +15,7 @@ public enum Opcode {
 
     CPY,     // CPY arg1, res  ; res = arg1
     IDXCPY,  // IDXCPY arg1, arg2, res ; res = arg1[arg2]
-    IDXASG,  // IDXASG arg1, arg2, res ; res[arg1] = arg2
+    IDXASG,  // IDXASG arg1, arg2, res ; arg1[arg2] = res
 
     ISGT,    // IFGT arg1, arg2, R  ; r = arg1 > arg2
     ISGTE,

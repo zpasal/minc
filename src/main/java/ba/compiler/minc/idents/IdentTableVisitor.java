@@ -17,6 +17,9 @@ public class IdentTableVisitor extends AstVisitor {
 
     @Override
     public void visit(VarDeclaration node) {
+        if (node.getDimensions().size() > 2) {
+            throw new RuntimeException("Only 1d and 2d arrays are supported!");
+        }
         top.add(node);
     }
 

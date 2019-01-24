@@ -43,15 +43,75 @@ public class IntermediateCodeGenerator extends AstVisitor {
         super.visit(node);
 
         VarDeclaration varDeclaration = currentEnv.get(node.getlValue().getName());
+
+        int varDimensions = varDeclaration.getDimensions().size();
+        if (varDimensions != node.getlValue().getIndexes().size()) {
+            throw new RuntimeException("Expected " + varDimensions + " dimensions");
+        }
+
+        // Calc index expressions
+        node.getlValue().getIndexes().stream().forEach(x -> visit(x));
+
+        // Assign - for now support only 1d and 2d arrays - todo - generalise
         ArgIdentifier result = new ArgIdentifier(node.getlValue().getName());
+        switch(varDimensions) {
+            case 0:
+                Arg newTypeArg = ic.widen(
+                        node.getExpression().getAddress(),
+                        node.getExpression().getType(),
+                        varDeclaration.getType()
+                );
+                ic.gen(Opcode.CPY, newTypeArg, null, result);
+                break;
+            case 1:
+                if (node.getlValue().getIndexes().get(0).getType() != MinCLexer.IntType) {
+                    throw new RuntimeException("Index must be integer");
+                }
+                newTypeArg = ic.widen(
+                        node.getExpression().getAddress(),
+                        node.getExpression().getType(),
+                        varDeclaration.getType()
+                );
+                ic.gen(Opcode.IDXASG,
+                        result,
+                        node.getlValue().getIndexes().get(0).getAddress(),
+                        newTypeArg) ;
+                break;
 
-        Arg arg1 = ic.widen(
-                node.getExpression().getAddress(),
-                node.getExpression().getType(),
-                varDeclaration.getType()
-        );
+            case 2:
+                if (node.getlValue().getIndexes().get(0).getType() != MinCLexer.IntType) {
+                    throw new RuntimeException("First index must be integer");
+                }
+                if (node.getlValue().getIndexes().get(1).getType() != MinCLexer.IntType) {
+                    throw new RuntimeException("Second index must be integer");
+                }
 
-        ic.gen(Opcode.CPY, arg1, null, result);
+                // a[i][j] = a[j + i * Wi] = a[index[1] + index[0]*Wi]
+                ArgTemp argIMulWi = ic.newTemp();
+                ArgTemp argJIMulWi = ic.newTemp();
+                // i * Wi
+                ic.gen(Opcode.MUL,
+                        node.getlValue().getIndexes().get(0).getAddress(),      // i  - a[i][j]
+                        new ArgInteger(varDeclaration.getDimensions().get(0)),  // Wi - width of matrix
+                        argIMulWi);                                             // == i * Wi
+                ic.gen(Opcode.ADD,
+                        node.getlValue().getIndexes().get(1).getAddress(),                  // j - a[i][j]
+                        argIMulWi,                                              // i * Hi
+                        argJIMulWi);                                            // == j + i*Hi
+
+                newTypeArg = ic.widen(
+                        node.getExpression().getAddress(),
+                        node.getExpression().getType(),
+                        varDeclaration.getType()
+                );
+                ic.gen(Opcode.IDXASG,
+                        result,
+                        argJIMulWi,
+                        newTypeArg) ;
+                break;
+        }
+
+
     }
 
     @Override
@@ -222,8 +282,48 @@ public class IntermediateCodeGenerator extends AstVisitor {
             throw new RuntimeException("Undefined var " + node.getName());
         }
 
+        int varDimensions = varDeclaration.getDimensions().size();
+        if (varDimensions != node.getIndexes().size()) {
+            throw new RuntimeException("Expected " + varDimensions + " dimensions");
+        }
+
+        // Calc index expressions
+        node.getIndexes().stream().forEach(x -> visit(x));
+
+        // for now simplify and support only up to 2 dimensions .. todo - generalise this
         ArgTemp res = ic.newTemp();
-        ic.gen(Opcode.LOAD, new ArgIdentifier(node.getName()), null, res);
+        switch(varDimensions) {
+            case 0:
+                ic.gen(Opcode.LOAD, new ArgIdentifier(node.getName()), null, res);
+                break;
+            case 1:
+                if (node.getIndexes().get(0).getType() != MinCLexer.IntType) {
+                    throw new RuntimeException("Index must be integer");
+                }
+                ic.gen(Opcode.LOAD, new ArgIdentifier(node.getName()), node.getIndexes().get(0).getAddress(), res);
+                break;
+            case 2:
+                if (node.getIndexes().get(0).getType() != MinCLexer.IntType) {
+                    throw new RuntimeException("First index must be integer");
+                }
+                if (node.getIndexes().get(1).getType() != MinCLexer.IntType) {
+                    throw new RuntimeException("Second index must be integer");
+                }
+                // a[i][j] = a[j + i * Wi] = a[index[1] + index[0]*Wi]
+                ArgTemp argIMulWi = ic.newTemp();
+                ArgTemp argJIMulWi = ic.newTemp();
+                // i * Wi
+                ic.gen(Opcode.MUL,
+                        node.getIndexes().get(0).getAddress(),                  // i  - a[i][j]
+                        new ArgInteger(varDeclaration.getDimensions().get(0)),  // Wi - width of matrix
+                        argIMulWi);                                             // == i * Wi
+                ic.gen(Opcode.ADD,
+                        node.getIndexes().get(1).getAddress(),                  // j - a[i][j]
+                        argIMulWi,                                              // i * Hi
+                        argJIMulWi);                                            // == j + i*Hi
+                ic.gen(Opcode.IDXCPY, new ArgIdentifier(node.getName()), argJIMulWi, res);
+                break;
+        }
 
         node.setAddress(res);
         node.setType(varDeclaration.getType());

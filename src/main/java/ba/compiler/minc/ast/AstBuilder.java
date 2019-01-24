@@ -78,7 +78,7 @@ public class AstBuilder {
     private static class TypeVisitor extends MinCBaseVisitor<Type> {
         @Override
         public Type visitType(MinCParser.TypeContext ctx) {
-            List<Integer> dimensions = null;
+            List<Integer> dimensions = new ArrayList<>();
             if (ctx.dimensions() != null) {
                 dimensions = ctx.dimensions().IntegerLiteral().stream()
                         .map(x -> Integer.valueOf(x.getText()))
@@ -100,9 +100,12 @@ public class AstBuilder {
             FunctionBlockVisitor functionBlockVisitor = new FunctionBlockVisitor();
 
             // Function Params
-            List<VarDeclaration> params = ctx.paramDefinitions().varInnerDeclaration().stream()
-                    .map(x -> x.accept(varInnerDeclarationVisitor))
-                    .collect(Collectors.toList());
+            List<VarDeclaration> params = new ArrayList<>();
+            if (ctx.paramDefinitions() != null) {
+                params = ctx.paramDefinitions().varInnerDeclaration().stream()
+                        .map(x -> x.accept(varInnerDeclarationVisitor))
+                        .collect(Collectors.toList());
+            }
 
             // Function Type
             Type returnType = ctx.type().accept(typeVisitor);
@@ -193,7 +196,6 @@ public class AstBuilder {
         }
     }
 
-
     private static class ReturnStatementVisitor extends MinCBaseVisitor<ReturnStatement> {
         @Override
         public ReturnStatement visitReturnStatement(MinCParser.ReturnStatementContext ctx) {
@@ -240,7 +242,6 @@ public class AstBuilder {
         }
     }
 
-
     private static class WhileStatementVisitor extends MinCBaseVisitor<WhileStatement> {
         @Override
         public WhileStatement visitWhileStatement(MinCParser.WhileStatementContext ctx) {
@@ -257,7 +258,6 @@ public class AstBuilder {
                     .build();
         }
     }
-
 
     private static class LValueStatementVisitor extends MinCBaseVisitor<LValue> {
         @Override
