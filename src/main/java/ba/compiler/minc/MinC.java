@@ -1,15 +1,15 @@
 package ba.compiler.minc;
 
 import ba.compiler.minc.ast.AstBuilder;
-import ba.compiler.minc.ast.AstPrint;
 import ba.compiler.minc.ast.nodes.CompilationUnit;
+import ba.compiler.minc.basicblocks.BasicBlocksBuilder;
 import ba.compiler.minc.idents.IdentTableVisitor;
 import ba.compiler.minc.intercode.IntermediateCodeGenerator;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CharStream;
 
 public class MinC {
-    public static void main(String [ ] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         CharStream charStream = new ANTLRFileStream("src/main/java/ba/compiler/minc/examples/example1.mc");
 
         AstBuilder astBuilder = new AstBuilder();
@@ -25,5 +25,7 @@ public class MinC {
             System.out.println(instString);
         }
 
+        BasicBlocksBuilder basicBlocksBuilder = new BasicBlocksBuilder(intermediateCodeGenerator.getIc());
+        basicBlocksBuilder.build();
     }
 }

@@ -1,6 +1,7 @@
 package ba.compiler.minc.intercode.instructions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class QuadCode {
 
@@ -46,6 +47,43 @@ public class QuadCode {
 
     public void setResult(Arg result) {
         this.result = result;
+    }
+
+    public boolean isConditional() {
+        switch(operand) {
+            case JUMP:
+            case COND:
+            case IFT:
+            case IFF:
+//            case CALL:
+//            case EXIT:
+                return true;
+        }
+        return false;
+    }
+
+
+    public List<Integer> getConditionalTargets() {
+        List<Integer> insts = new ArrayList<>();
+        switch(operand) {
+            case JUMP:
+                assert arg1 != null : "Invalid generated opcode";
+                insts.add(((ArgLabel)arg1).address);
+                break;
+            case COND:
+                insts.add(((ArgLabel)arg2).address);
+                insts.add(((ArgLabel)result).address);
+                break;
+            case IFT:
+                insts.add(((ArgLabel)arg2).address);
+                break;
+            case IFF:
+                insts.add(((ArgLabel)arg2).address);
+                break;
+            default:
+                assert false : "Not supported conditional type " + operand;
+        }
+        return insts;
     }
 
     @Override

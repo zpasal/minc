@@ -52,7 +52,7 @@ public class IntermediateCodeGenerator extends AstVisitor {
         // Calc index expressions
         node.getlValue().getIndexes().stream().forEach(x -> visit(x));
 
-        // Assign - for now support only 1d and 2d arrays - todo - generalise
+        // Assign - for now support only for 1d and 2d arrays - todo - generalise
         ArgIdentifier result = new ArgIdentifier(node.getlValue().getName());
         switch(varDimensions) {
             case 0:
