@@ -32,9 +32,13 @@ public class BasicBlocksBuilder {
         this.ic = ic;
     }
 
+    public List<BasicBlock> getBasicBlocks() {
+        return basicBlocks;
+    }
+
     public void build() {
         List<Integer> leaderIndices = findLeaders();
-        printLeaders(leaderIndices);
+        //printLeaders(leaderIndices);
 
         buildBlocks(leaderIndices);
         printBlocks();
@@ -49,7 +53,11 @@ public class BasicBlocksBuilder {
             Integer end = i != leaderIndices.size()-1 ?
                     leaderIndices.get(i+1) :
                     ic.getInstructions().size();
-            BasicBlock newBlock = new BasicBlock(start, end, ic);
+
+            BasicBlock newBlock = new BasicBlock(start, start);
+            for (int j=start; j<end; j++) {
+                newBlock.addInstruction(ic.getInstructions().get(j));
+            }
             basicBlocks.add(newBlock);
         }
     }
@@ -77,13 +85,6 @@ public class BasicBlocksBuilder {
                 .sorted()
                 .distinct()
                 .collect(Collectors.toList());
-    }
-
-    private void printLeaders(List<Integer> leaderIndices) {
-        System.out.println("Leaders:");
-        leaderIndices.stream()
-                .forEach(ind -> System.out.println(ind));
-        System.out.println("End Leaders.");
     }
 
     private void printBlocks() {

@@ -335,14 +335,6 @@ public class AstBuilder {
         }
 
         @Override
-        public Expression visitRealExpression(MinCParser.RealExpressionContext ctx) {
-            return RealExpression.Builder.aRealExpression()
-                    .withLine(ctx.start.getLine())
-                    .withValue(Double.valueOf(ctx.getText()))
-                    .build();
-        }
-
-        @Override
         public Expression visitBoolExpression(MinCParser.BoolExpressionContext ctx) {
             return BoolExpression.Builder.aBoolExpression()
                     .withLine(ctx.start.getLine())

@@ -22,7 +22,7 @@ varInnerDeclaration:
     ;
 
 type:
-    baseType=(IntType | CharType | BoolType | VoidType | RealType) dimensions?
+    baseType=(IntType | CharType | BoolType | VoidType) dimensions?
     ;
 
 dimensions:
@@ -91,7 +91,6 @@ expression
     | expression And expression                             #andExpression
     | expression Or expression                              #orExpression
     | IntegerLiteral                                        #integerExpression
-    | RealLiteral                                           #realExpression
     | Bool                                                  #boolExpression
     | functionCall indexes?                                 #functionCallExpression
     | Identifier indexes?                                   #identifierExpression

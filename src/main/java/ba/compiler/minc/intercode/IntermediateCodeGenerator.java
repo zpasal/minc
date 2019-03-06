@@ -31,6 +31,7 @@ public class IntermediateCodeGenerator extends AstVisitor {
         Env saved = currentEnv;
         currentEnv = node.getEnv();
 
+        ic.newLabel(ic.getNextInstruction(), "_" + node.getName());
         super.visit(node);
 
         // todo = return value
@@ -110,8 +111,6 @@ public class IntermediateCodeGenerator extends AstVisitor {
                         newTypeArg) ;
                 break;
         }
-
-
     }
 
     @Override
@@ -240,7 +239,8 @@ public class IntermediateCodeGenerator extends AstVisitor {
     public void visit(IfStatement node) {
         visit(node.getExpression());
 
-        ArgLabel trueLabel = new ArgLabel(ic.getNextInstruction()+1);
+        // not using ic.newLabel - this one will be back-patched
+        ArgLabel trueLabel =  ic.newLabel(ic.getNextInstruction()+1, "L_IF_T_"+(ic.getNextInstruction()+1));
         ic.gen(Opcode.COND, node.getExpression().getAddress(), trueLabel, null);
         int instToPatch = ic.getNextInstruction() - 1;
 
@@ -248,7 +248,7 @@ public class IntermediateCodeGenerator extends AstVisitor {
 
         // Back-patch false label
         int label = ic.getNextInstruction();
-        ArgLabel falseLabel = new ArgLabel(label);
+        ArgLabel falseLabel = ic.newLabel(label, "L_IF_F_" + label);
         ic.getInstructions().get(instToPatch).setResult(falseLabel);
     }
 
@@ -259,18 +259,19 @@ public class IntermediateCodeGenerator extends AstVisitor {
 
         visit(node.getExpression());
 
-        ArgLabel trueLabel = new ArgLabel(ic.getNextInstruction()+1);
+        // back patched
+        ArgLabel trueLabel = ic.newLabel(ic.getNextInstruction()+1, "L_WHILE_T_" + (ic.getNextInstruction()+1));
         ic.gen(Opcode.COND, node.getExpression().getAddress(), trueLabel, null);
         int instToPatch = ic.getNextInstruction() - 1;
 
         visit(node.getBlock());
 
-        // jumo back to while loop
-        ic.gen(Opcode.JUMP, new ArgLabel(instEntryPoint), null, null);
+        // jump back to while loop
+        ic.gen(Opcode.JUMP, ic.newLabel(instEntryPoint, "L_WHILE_E_" + instEntryPoint), null, null);
 
         // Back-patch false label
         int label = ic.getNextInstruction();
-        ArgLabel falseLabel = new ArgLabel(label);
+        ArgLabel falseLabel = ic.newLabel(label, "L_WHILE_F_" + label);
         ic.getInstructions().get(instToPatch).setResult(falseLabel);
 
     }

@@ -213,13 +213,6 @@ public interface MinCVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMultExpression(MinCParser.MultExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code realExpression}
-	 * labeled alternative in {@link MinCParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitRealExpression(MinCParser.RealExpressionContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link MinCParser#functionCall}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

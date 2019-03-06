@@ -347,18 +347,6 @@ public interface MinCListener extends ParseTreeListener {
 	 */
 	void exitMultExpression(MinCParser.MultExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code realExpression}
-	 * labeled alternative in {@link MinCParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterRealExpression(MinCParser.RealExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code realExpression}
-	 * labeled alternative in {@link MinCParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitRealExpression(MinCParser.RealExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link MinCParser#functionCall}.
 	 * @param ctx the parse tree
 	 */

@@ -5,12 +5,14 @@ import ba.compiler.minc.intercode.instructions.*;
 import ba.compiler.minc.parser.MinCLexer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class IntermediateCode {
     private List<QuadCode> instructions = new ArrayList<>();
     private int tempIndex = 0;
-    private int labelIndex = 0;
+    private Map<Integer, String> labels = new HashMap<>();
 
     public QuadCode gen(Opcode op, Arg arg1, Arg arg2, Arg res) {
         QuadCode quadCode = new QuadCode(op, arg1, arg2, res);
@@ -35,12 +37,17 @@ public class IntermediateCode {
         return instructions;
     }
 
-    public ArgLabel newLabel() {
-        return new ArgLabel(++labelIndex);
+    public ArgLabel newLabel(int address, String name) {
+        labels.put(address, name);
+        return new ArgLabel(address);
     }
 
     public int getNextInstruction() {
         return instructions.size();
+    }
+
+    public String getLabelAt(int address) {
+        return labels.get(address);
     }
 
     /*
